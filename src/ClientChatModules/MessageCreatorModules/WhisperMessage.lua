@@ -15,14 +15,14 @@ local ChatConstants = require(clientChatModules:WaitForChild("ChatConstants"))
 local util = require(script.Parent:WaitForChild("Util"))
 
 local ChatLocalization = nil
-pcall(function() ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization) end)
+pcall(function()
+	ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization)
+end)
 
 function CreateMessageLabel(messageData, channelName)
 
 	local fromSpeaker = messageData.FromSpeaker
 	local speakerDisplayName = messageData.SpeakerDisplayName
-	local message = messageData.Message
-
 	local extraData = messageData.ExtraData or {}
 	local useFont = extraData.Font or ChatSettings.DefaultFont
 	local useTextSize = extraData.TextSize or ChatSettings.ChatWindowTextSize
@@ -38,7 +38,6 @@ function CreateMessageLabel(messageData, channelName)
 		formatUseName = string.format("[%s]:", fromSpeaker)
 	end
 
-	local speakerNameSize = util:GetStringTextBounds(formatUseName, useFont, useTextSize)
 	local numNeededSpaces = util:GetNumberOfSpaces(formatUseName, useFont, useTextSize) + 1
 
 	local BaseFrame, BaseMessage = util:CreateBaseMessage("", useFont, useTextSize, useChatColor)

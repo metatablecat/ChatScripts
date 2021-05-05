@@ -10,7 +10,7 @@ local ChatSettings = require(ReplicatedModules:WaitForChild("ChatSettings"))
 local function Run(ChatService)
 
 	if ChatSettings and ChatSettings.AllowMeCommand then
-		local function MeCommandFilterFunction(speakerName, messageObj, channelName)
+		local function MeCommandFilterFunction(_, messageObj)
 			local message = messageObj.Message
 			if message and string.sub(message, 1, 4):lower() == "/me " then
 				-- Set a different message type so that clients can render the message differently.

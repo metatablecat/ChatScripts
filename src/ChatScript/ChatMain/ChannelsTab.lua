@@ -141,7 +141,7 @@ function methods:Destroy()
 end
 
 function methods:UpdateMessagePostedInChannel(ignoreActive)
-	if (self.Active and (ignoreActive ~= true)) then return end
+	if self.Active and (ignoreActive ~= true) then return end
 
 	local count = self.UnreadMessageCount + 1
 	self.UnreadMessageCount = count
@@ -151,10 +151,6 @@ function methods:UpdateMessagePostedInChannel(ignoreActive)
 	label.TextLabel.Text = (count < 100) and tostring(count) or "!"
 
 	local tweenTime = 0.15
-	local tweenPosOffset = UDim2.new(0, 0, -0.1, 0)
-
-	local curPos = label.Position
-	local outPos = curPos + tweenPosOffset
 	local easingDirection = Enum.EasingDirection.Out
 	local easingStyle = Enum.EasingStyle.Quad
 
@@ -168,7 +164,7 @@ function methods:SetActive(active)
 	self.UnselectedFrame.Visible = not active
 	self.SelectedFrame.Visible = active
 
-	if (active) then
+	if active then
 		self.UnreadMessageCount = 0
 		self.NewMessageIcon.Visible = false
 
@@ -288,7 +284,7 @@ function module.new(channelName)
 
 	obj.GuiObject.Name = "Frame_" .. obj.ChannelName
 
-	if (string.len(channelName) > ChatSettings.MaxChannelNameLength) then
+	if string.len(channelName) > ChatSettings.MaxChannelNameLength then
 		channelName = string.sub(channelName, 1, ChatSettings.MaxChannelNameLength - 3) .. "..."
 	end
 

@@ -8,10 +8,16 @@ local ChatSettings = require(ReplicatedModules:WaitForChild("ChatSettings"))
 local ChatConstants = require(ReplicatedModules:WaitForChild("ChatConstants"))
 
 local ChatLocalization = nil
-pcall(function() ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization) end)
-if ChatLocalization == nil then ChatLocalization = {} end
+pcall(function()
+	ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization)
+end)
+if ChatLocalization == nil then
+	ChatLocalization = {}
+end
 if not ChatLocalization.FormatMessageToSend or not ChatLocalization.LocalizeFormattedMessage then
-	function ChatLocalization:FormatMessageToSend(key,default) return default end
+	function ChatLocalization:FormatMessageToSend(_,default)
+		return default
+	end
 end
 
 local errorTextColor = ChatSettings.ErrorMessageTextColor or Color3.fromRGB(245, 50, 50)
@@ -31,26 +37,23 @@ local function Run(ChatService)
 	local function TeamChatReplicationFunction(fromSpeaker, message, channelName)
 		local speakerObj = ChatService:GetSpeaker(fromSpeaker)
 		local channelObj = ChatService:GetChannel(channelName)
-		if (speakerObj and channelObj) then
+		if speakerObj and channelObj then
 			local player = speakerObj:GetPlayer()
-			if (player) then
+			if player then
 
-				for i, speakerName in pairs(channelObj:GetSpeakerList()) do
+				for _, speakerName in pairs(channelObj:GetSpeakerList()) do
 					local otherSpeaker = ChatService:GetSpeaker(speakerName)
-					if (otherSpeaker) then
+					if otherSpeaker then
 						local otherPlayer = otherSpeaker:GetPlayer()
-						if (otherPlayer) then
+						if otherPlayer then
 
-							if (player.Team == otherPlayer.Team) then
+							if player.Team == otherPlayer.Team then
 								local extraData = {
 									NameColor = player.TeamColor.Color,
 									ChatColor = player.TeamColor.Color,
 									ChannelColor = player.TeamColor.Color
 								}
 								otherSpeaker:SendMessage(message, channelName, fromSpeaker, extraData)
-							else
-								--// Could use this line to obfuscate message for cool effects
-								--otherSpeaker:SendMessage(message, channelName, fromSpeaker)
 							end
 
 						end

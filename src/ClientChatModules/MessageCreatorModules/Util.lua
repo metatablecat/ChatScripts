@@ -200,7 +200,7 @@ function GetWhisperChannelPrefix()
 	return "To "
 end
 
-function methods:NameButtonClicked(nameButton, playerName)
+function methods:NameButtonClicked(_, playerName)
 	if not self.ChatWindow then
 		return
 	end
@@ -230,7 +230,7 @@ function methods:NameButtonClicked(nameButton, playerName)
 	end
 end
 
-function methods:ChannelButtonClicked(channelButton, channelName)
+function methods:ChannelButtonClicked(_, channelName)
 	if not self.ChatWindow then
 		return
 	end
@@ -320,8 +320,8 @@ function methods:CreateFadeFunctions(fadeObjects)
 	end
 
 	local function UpdateAnimFunction(dtScale, CurveUtil)
-		for object, properties in pairs(AnimParams) do
-			for property, values in pairs(properties) do
+		for _, properties in pairs(AnimParams) do
+			for _, values in pairs(properties) do
 				values.Current = CurveUtil:Expt(
 					values.Current,
 					values.Target,

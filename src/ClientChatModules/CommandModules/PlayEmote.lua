@@ -9,8 +9,15 @@ local CommandModules = script.Parent
 local Util = require(CommandModules:WaitForChild("Util"))
 
 local ChatLocalization = nil
-pcall(function() ChatLocalization = require(Chat.ClientChatModules.ChatLocalization) end)
-if ChatLocalization == nil then ChatLocalization = { Get = function(self, key, fallback) return fallback end } end
+pcall(function()
+	ChatLocalization = require(Chat.ClientChatModules.ChatLocalization)
+end)
+if ChatLocalization == nil then
+	ChatLocalization = {
+		Get = function(self, _, fallback)
+			return fallback
+		end}
+	end
 
 local LocalPlayer = Players.LocalPlayer
 
@@ -70,7 +77,7 @@ local function sendErrorMessage(channelObj, errorMessageKey)
 	Util:SendSystemMessageToSelf(localizedString, channelObj, extraData)
 end
 
-local function ProcessMessage(message, ChatWindow, ChatSettings)
+local function ProcessMessage(message, ChatWindow)
 	local emoteName = getEmoteName(message)
 	if not emoteName then
 		return false
@@ -151,7 +158,9 @@ local function ProcessMessage(message, ChatWindow, ChatSettings)
 	end
 
 	spawn(function()
-		local ok, didPlay = pcall(function() return humanoid:PlayEmote(emoteName) end)
+		local ok, didPlay = pcall(function()
+			return humanoid:PlayEmote(emoteName)
+		end)
 
 		if not ok then
 			sendErrorMessage(channelObj, LocalizationKeys.NotSupported)

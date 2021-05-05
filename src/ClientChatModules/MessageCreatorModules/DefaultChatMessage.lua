@@ -18,8 +18,6 @@ function CreateMessageLabel(messageData, channelName)
 		speakerName = fromSpeaker
 	end
 
-	local message = messageData.Message
-
 	local extraData = messageData.ExtraData or {}
 	local useFont = extraData.Font or ChatSettings.DefaultFont
 	local useTextSize = extraData.TextSize or ChatSettings.ChatWindowTextSize
@@ -29,7 +27,6 @@ function CreateMessageLabel(messageData, channelName)
 	local tags = extraData.Tags or {}
 
 	local formatUseName = string.format("[%s]:", speakerName)
-	local speakerNameSize = util:GetStringTextBounds(formatUseName, useFont, useTextSize)
 	local numNeededSpaces = util:GetNumberOfSpaces(formatUseName, useFont, useTextSize) + 1
 
 	local BaseFrame, BaseMessage = util:CreateBaseMessage("", useFont, useTextSize, useChatColor)
@@ -46,7 +43,7 @@ function CreateMessageLabel(messageData, channelName)
 	end
 
 	local tagLabels = {}
-	for i, tag in pairs(tags) do
+	for _, tag in pairs(tags) do
 		local tagColor = tag.TagColor or Color3.fromRGB(255, 0, 255)
 		local tagText = tag.TagText or "???"
 		local formatTagText = string.format("[%s] ", tagText)
@@ -86,8 +83,7 @@ function CreateMessageLabel(messageData, channelName)
 		TextStrokeTransparency = {FadedIn = 0.75, FadedOut = 1}
 	}
 
-	for i, tagLabel in pairs(tagLabels) do
-		local index = string.format("Tag%d", i)
+	for _, tagLabel in pairs(tagLabels) do
 		FadeParmaters[tagLabel] = {
 			TextTransparency = {FadedIn = 0, FadedOut = 1},
 			TextStrokeTransparency = {FadedIn = 0.75, FadedOut = 1}

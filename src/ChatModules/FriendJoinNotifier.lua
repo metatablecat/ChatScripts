@@ -4,17 +4,22 @@
 
 local Chat = game:GetService("Chat")
 local Players = game:GetService("Players")
-local FriendService = game:GetService("FriendService")
 
 local ReplicatedModules = Chat:WaitForChild("ClientChatModules")
 local ChatSettings = require(ReplicatedModules:WaitForChild("ChatSettings"))
-local ChatConstants = require(ReplicatedModules:WaitForChild("ChatConstants"))
 
 local ChatLocalization = nil
-pcall(function() ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization) end)
-if ChatLocalization == nil then ChatLocalization = {} end
+pcall(function()
+	ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization)
+end)
+if ChatLocalization == nil then
+	ChatLocalization = {}
+end
+
 if not ChatLocalization.FormatMessageToSend or not ChatLocalization.LocalizeFormattedMessage then
-	function ChatLocalization:FormatMessageToSend(key,default) return default end
+	function ChatLocalization:FormatMessageToSend(_, default)
+		return default
+	end
 end
 
 local FriendMessageTextColor = Color3.fromRGB(255, 255, 255)

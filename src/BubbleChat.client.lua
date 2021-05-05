@@ -109,7 +109,9 @@ local function createFifo()
 
 	function this:PopFront()
 		table.remove(this.data, 1)
-		if this:Empty() then emptyEvent:Fire() end
+		if this:Empty() then
+			emptyEvent:Fire()
+		end
 	end
 
 	function this:Front()
@@ -150,13 +152,17 @@ local function createMap()
 	end
 
 	function this:Erase(key)
-		if this.data[key] then count = count - 1 end
+		if this.data[key] then
+			count = count - 1
+		end
 		this.data[key] = nil
 	end
 
 	function this:Set(key, value)
 		this.data[key] = value
-		if value then count = count + 1 end
+		if value then
+			count = count + 1
+		end
 	end
 
 	function this:Get(key)
@@ -270,27 +276,6 @@ function createScaledChatBubbleWithTail(filePrefix, frameScaleSize, position, sl
 	return chatBubbleMain
 end
 
-function createChatImposter(filePrefix, dotDotDot, yOffset)
-	local result = Instance.new("ImageLabel")
-	result.Name = "DialogPlaceholder"
-	result.Image = "rbxasset://textures/" .. tostring(filePrefix) .. ".png"
-	result.BackgroundTransparency = 1
-	result.BorderSizePixel = 0
-	result.Position = UDim2.new(0, 0, -1.25, 0)
-	result.Size = UDim2.new(1, 0, 1, 0)
-
-	local image = Instance.new("ImageLabel")
-	image.Name = "DotDotDot"
-	image.Image = "rbxasset://textures/" .. tostring(dotDotDot) .. ".png"
-	image.BackgroundTransparency = 1
-	image.BorderSizePixel = 0
-	image.Position = UDim2.new(0.001, 0, yOffset, 0)
-	image.Size = UDim2.new(1, 0, 0.7, 0)
-	image.Parent = result
-
-	return result
-end
-
 
 local this = {}
 this.ChatBubble = {}
@@ -299,7 +284,7 @@ this.ScalingChatBubbleWithTail = {}
 this.CharacterSortedMsg = createMap()
 
 -- init chat bubble tables
-local function initChatBubbleType(chatBubbleType, fileName, imposterFileName, isInset, sliceRect)
+local function initChatBubbleType(chatBubbleType, fileName, _, isInset, sliceRect)
 	this.ChatBubble[chatBubbleType] = createChatBubbleMain(fileName, sliceRect)
 	this.ChatBubbleWithTail[chatBubbleType] = createChatBubbleWithTail(fileName, UDim2.new(0.5, -CHAT_BUBBLE_TAIL_HEIGHT, 1, isInset and -1 or 0), UDim2.new(0, 30, 0, CHAT_BUBBLE_TAIL_HEIGHT), sliceRect)
 	this.ScalingChatBubbleWithTail[chatBubbleType] = createScaledChatBubbleWithTail(fileName, 0.5, UDim2.new(-0.5, 0, 0, isInset and -1 or 0), sliceRect)
@@ -414,7 +399,9 @@ function this:SetBillboardGuiLOD(billboardGui, origin)
 	if origin:IsA("Model") then
 		local head = origin:FindFirstChild("Head")
 		if not head then origin = origin.PrimaryPart
-		else origin = head end
+		else
+			origin = head
+		end
 	end
 
 	local bubbleDistance = distanceToBubbleOrigin(origin)
@@ -431,7 +418,9 @@ end
 function this:CameraCFrameChanged()
 	for index, value in pairs(this.CharacterSortedMsg:GetData()) do
 		local playerBillboardGui = value["BillboardGui"]
-		if playerBillboardGui then this:SetBillboardGuiLOD(playerBillboardGui, index) end
+		if playerBillboardGui then
+			this:SetBillboardGuiLOD(playerBillboardGui, index)
+		end
 	end
 end
 
@@ -496,9 +485,13 @@ function this:UpdateChatLinesForOrigin(origin, currentBubbleYPos)
 
 		if bubblePos > 1 then
 			local tail = bubble:FindFirstChild("ChatBubbleTail")
-			if tail then tail:Destroy() end
+			if tail then
+				tail:Destroy()
+			end
 			local bubbleText = bubble:FindFirstChild("BubbleText")
-			if bubbleText then bubbleText.TextTransparency = 0.5 end
+			if bubbleText then
+				bubbleText.TextTransparency = 0.5
+			end
 		end
 
 		local udimValue = UDim2.new( bubble.Position.X.Scale, bubble.Position.X.Offset,
@@ -534,8 +527,12 @@ function this:DestroyBubble(bubbleQueue, bubbleToDestroy)
 			if bubble then
 				local fadeAmount = timeBetween * CHAT_BUBBLE_FADE_SPEED
 				bubble.ImageTransparency = bubble.ImageTransparency + fadeAmount
-				if bubbleText then bubbleText.TextTransparency = bubbleText.TextTransparency + fadeAmount end
-				if bubbleTail then bubbleTail.ImageTransparency = bubbleTail.ImageTransparency + fadeAmount end
+				if bubbleText then
+					bubbleText.TextTransparency = bubbleText.TextTransparency + fadeAmount
+				end
+				if bubbleTail then
+					bubbleTail.ImageTransparency = bubbleTail.ImageTransparency + fadeAmount
+				end
 			end
 		end
 
@@ -602,10 +599,13 @@ function this:CreateChatLineRender(instance, line, onlyCharacter, fifo, shouldAu
 
 			local newChatBubbleOffsetSizeY = numOflines * CHAT_BUBBLE_LINE_HEIGHT
 
-			chatBubbleRender:TweenSizeAndPosition(UDim2.new(bubbleWidthScale, 0, 0, newChatBubbleOffsetSizeY),
-													UDim2.new( (1 - bubbleWidthScale) / 2, 0, 1, -newChatBubbleOffsetSizeY),
-													Enum.EasingDirection.Out, Enum.EasingStyle.Elastic, 0.1, true,
-													function() bubbleText.Visible = true end)
+			chatBubbleRender:TweenSizeAndPosition(
+				UDim2.new(bubbleWidthScale, 0, 0, newChatBubbleOffsetSizeY),
+				UDim2.new( (1 - bubbleWidthScale) / 2, 0, 1, -newChatBubbleOffsetSizeY),
+				Enum.EasingDirection.Out, Enum.EasingStyle.Elastic, 0.1, true,
+				function()
+					bubbleText.Visible = true
+				end)
 
 			-- todo: remove when over max bubbles
 			this:SetBillboardGuiLOD(billboardGui, line.Origin)
@@ -618,7 +618,7 @@ function this:CreateChatLineRender(instance, line, onlyCharacter, fifo, shouldAu
 	end
 end
 
-function this:OnPlayerChatMessage(sourcePlayer, message, targetPlayer)
+function this:OnPlayerChatMessage(sourcePlayer, message)
 
 	if not this:BubbleChatEnabled() then return end
 
@@ -648,9 +648,13 @@ function this:OnGameChatMessage(origin, message, color)
 
 	local bubbleColor = BubbleColor.WHITE
 
-	if color == Enum.ChatColor.Blue then bubbleColor = BubbleColor.BLUE
-	elseif color == Enum.ChatColor.Green then bubbleColor = BubbleColor.GREEN
-	elseif color == Enum.ChatColor.Red then bubbleColor = BubbleColor.RED end
+	if color == Enum.ChatColor.Blue then
+		bubbleColor = BubbleColor.BLUE
+	elseif color == Enum.ChatColor.Green then
+		bubbleColor = BubbleColor.GREEN
+	elseif color == Enum.ChatColor.Red then
+		bubbleColor = BubbleColor.RED
+	end
 
 	local safeMessage = this:SanitizeChatLine(message)
 	local line = createGameChatLine(origin, safeMessage, not fromOthers, bubbleColor)
@@ -693,25 +697,33 @@ function this:ShowOwnFilteredMessage()
 end
 
 function findPlayer(playerName)
-	for i,v in pairs(PlayersService:GetPlayers()) do
+	for _,v in pairs(PlayersService:GetPlayers()) do
 		if v.Name == playerName then
 			return v
 		end
 	end
 end
 
-ChatService.Chatted:connect(function(origin, message, color) this:OnGameChatMessage(origin, message, color) end)
+ChatService.Chatted:connect(function(origin, message, color)
+	this:OnGameChatMessage(origin, message, color)
+end)
 
 local cameraChangedCon = nil
 if game.Workspace.CurrentCamera then
-	cameraChangedCon = game.Workspace.CurrentCamera:GetPropertyChangedSignal("CFrame"):connect(function(prop) this:CameraCFrameChanged() end)
+	cameraChangedCon = game.Workspace.CurrentCamera:GetPropertyChangedSignal("CFrame"):connect(function()
+		this:CameraCFrameChanged()
+	end)
 end
 
-game.Workspace.Changed:connect(function(prop)
+game.Workspace.Changed:Connect(function(prop)
 	if prop == "CurrentCamera" then
-		if cameraChangedCon then cameraChangedCon:disconnect() end
+		if cameraChangedCon then
+			cameraChangedCon:disconnect()
+		end
 		if game.Workspace.CurrentCamera then
-			cameraChangedCon = game.Workspace.CurrentCamera:GetPropertyChangedSignal("CFrame"):connect(function(prop) this:CameraCFrameChanged() end)
+			cameraChangedCon = game.Workspace.CurrentCamera:GetPropertyChangedSignal("CFrame"):connect(function()
+				this:CameraCFrameChanged()
+			end)
 		end
 	end
 end)
@@ -757,7 +769,7 @@ local ChatEvents = ReplicatedStorage:WaitForChild("DefaultChatSystemChatEvents")
 local OnMessageDoneFiltering = ChatEvents:WaitForChild("OnMessageDoneFiltering")
 local OnNewMessage = ChatEvents:WaitForChild("OnNewMessage")
 
-OnNewMessage.OnClientEvent:connect(function(messageData, channelName)
+OnNewMessage.OnClientEvent:connect(function(messageData)
 	if not checkAllowedMessageType(messageData) then
 		return
 	end
@@ -776,7 +788,7 @@ OnNewMessage.OnClientEvent:connect(function(messageData, channelName)
 	this:OnPlayerChatMessage(sender, messageData.Message, nil)
 end)
 
-OnMessageDoneFiltering.OnClientEvent:connect(function(messageData, channelName)
+OnMessageDoneFiltering.OnClientEvent:connect(function(messageData)
 	if not checkAllowedMessageType(messageData) then
 		return
 	end

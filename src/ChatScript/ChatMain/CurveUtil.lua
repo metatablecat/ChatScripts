@@ -13,7 +13,7 @@ function CurveUtil:Expt(start, to, pct, dt_scale)
 	return start + delta
 end
 
-function CurveUtil:Expty(start, to, pct, dt_scale)
+function CurveUtil:Expty(_, _, pct, dt_scale)
 	--y = e ^ (-a * timescale)--
 	local friction = 1 - pct
 	local a = -math.log(friction)

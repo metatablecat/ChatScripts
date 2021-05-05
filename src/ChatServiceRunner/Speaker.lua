@@ -9,7 +9,6 @@ local Chat = game:GetService("Chat")
 local ReplicatedModules = Chat:WaitForChild("ClientChatModules")
 local ChatSettings = require(ReplicatedModules:WaitForChild("ChatSettings"))
 
-local modulesFolder = script.Parent
 
 --////////////////////////////// Methods
 --//////////////////////////////////////
@@ -105,13 +104,13 @@ function methods:SayMessage(message, channelName, extraData)
 end
 
 function methods:JoinChannel(channelName)
-	if (self.Channels[channelName:lower()]) then
+	if self.Channels[channelName:lower()] then
 		warn("Speaker is already in channel \"" .. channelName .. "\"")
 		return
 	end
 
 	local channel = self.ChatService:GetChannel(channelName)
-	if (not channel) then
+	if not channel then
 		error("Channel \"" .. channelName .. "\" does not exist!")
 	end
 
@@ -126,7 +125,7 @@ function methods:JoinChannel(channelName)
 end
 
 function methods:LeaveChannel(channelName)
-	if (not self.Channels[channelName:lower()]) then
+	if not self.Channels[channelName:lower()] then
 		warn("Speaker is not in channel \"" .. channelName .. "\"")
 		return
 	end
@@ -152,7 +151,7 @@ end
 
 function methods:GetChannelList()
 	local list = {}
-	for i, channel in pairs(self.Channels) do
+	for _, channel in pairs(self.Channels) do
 		table.insert(list, channel.Name)
 	end
 	return list
@@ -160,7 +159,7 @@ end
 
 function methods:SendMessage(message, channelName, fromSpeaker, extraData)
 	local channel = self.Channels[channelName:lower()]
-	if (channel) then
+	if channel then
 		channel:SendMessageToSpeaker(message, self.Name, fromSpeaker, extraData)
 
 	elseif RunService:IsStudio() then
@@ -171,7 +170,7 @@ end
 
 function methods:SendSystemMessage(message, channelName, extraData)
 	local channel = self.Channels[channelName:lower()]
-	if (channel) then
+	if channel then
 		channel:SendSystemMessageToSpeaker(message, self.Name, extraData)
 
 	elseif RunService:IsStudio() then
@@ -235,7 +234,7 @@ end
 --///////////////// Internal-Use Methods
 --//////////////////////////////////////
 function methods:InternalDestroy()
-	for i, channel in pairs(self.Channels) do
+	for _, channel in pairs(self.Channels) do
 		channel:InternalRemoveSpeaker(self)
 	end
 
@@ -301,8 +300,8 @@ function methods:InternalSendFilteredMessageWithFilterResult(inMessageObj, chann
 
 	local msg = ""
 	pcall(function()
-		if (messageObj.IsFilterResult) then
-			if (player) then
+		if messageObj.IsFilterResult then
+			if player then
 				msg = oldFilterResult:GetChatForUserAsync(player.UserId)
 			else
 				msg = oldFilterResult:GetNonChatStringForBroadcastAsync()
@@ -315,7 +314,7 @@ function methods:InternalSendFilteredMessageWithFilterResult(inMessageObj, chann
 	--// Messages of 0 length are the result of two users not being allowed
 	--// to chat, or GetChatForUserAsync() failing. In both of these situations,
 	--// messages with length of 0 should not be sent.
-	if (#msg > 0) then
+	if #msg > 0 then
 		messageObj.Message = msg
 		messageObj.FilterResult = nil
 		self:InternalSendFilteredMessage(messageObj, channelName)

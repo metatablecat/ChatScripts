@@ -40,9 +40,6 @@ local FFlagUserHandleChatHotKeyWithContextActionService = false do
 	end
 end
 
-local FILTER_MESSAGE_TIMEOUT = 60
-
-local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Chat = game:GetService("Chat")
 local StarterGui = game:GetService("StarterGui")
@@ -57,8 +54,15 @@ local messageCreatorModules = clientChatModules:WaitForChild("MessageCreatorModu
 local MessageCreatorUtil = require(messageCreatorModules:WaitForChild("Util"))
 
 local ChatLocalization = nil
-pcall(function() ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization) end)
-if ChatLocalization == nil then ChatLocalization = {} function ChatLocalization:Get(key,default) return default end end
+pcall(function()
+	ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization)
+end)
+if ChatLocalization == nil then
+	ChatLocalization = {}
+	function ChatLocalization:Get(_, default)
+		return default
+	end
+end
 
 local numChildrenRemaining = 10 -- #waitChildren returns 0 because it's a dictionary
 local waitChildren =
@@ -84,21 +88,21 @@ local useEvents = {}
 local FoundAllEventsEvent = Instance.new("BindableEvent")
 
 function TryRemoveChildWithVerifyingIsCorrectType(child)
-	if (waitChildren[child.Name] and child:IsA(waitChildren[child.Name])) then
+	if waitChildren[child.Name] and child:IsA(waitChildren[child.Name]) then
 		waitChildren[child.Name] = nil
 		useEvents[child.Name] = child
 		numChildrenRemaining = numChildrenRemaining - 1
 	end
 end
 
-for i, child in pairs(EventFolder:GetChildren()) do
+for _, child in pairs(EventFolder:GetChildren()) do
 	TryRemoveChildWithVerifyingIsCorrectType(child)
 end
 
-if (numChildrenRemaining > 0) then
+if numChildrenRemaining > 0 then
 	local con = EventFolder.ChildAdded:connect(function(child)
 		TryRemoveChildWithVerifyingIsCorrectType(child)
-		if (numChildrenRemaining < 1) then
+		if numChildrenRemaining < 1 then
 			FoundAllEventsEvent:Fire()
 		end
 	end)
@@ -147,9 +151,7 @@ local modulesFolder = script
 local moduleChatWindow = require(modulesFolder:WaitForChild("ChatWindow"))
 local moduleChatBar = require(modulesFolder:WaitForChild("ChatBar"))
 local moduleChannelsBar = require(modulesFolder:WaitForChild("ChannelsBar"))
-local moduleMessageLabelCreator = require(modulesFolder:WaitForChild("MessageLabelCreator"))
 local moduleMessageLogDisplay = require(modulesFolder:WaitForChild("MessageLogDisplay"))
-local moduleChatChannel = require(modulesFolder:WaitForChild("ChatChannel"))
 local moduleCommandProcessor = require(modulesFolder:WaitForChild("CommandProcessor"))
 
 local ChatWindow = moduleChatWindow.new()
@@ -171,7 +173,7 @@ MessageSender:RegisterSayMessageFunction(EventFolder.SayMessageRequest)
 
 
 
-if (UserInputService.TouchEnabled) then
+if UserInputService.TouchEnabled then
 	ChatBar:SetTextLabelText(ChatLocalization:Get("GameChat_ChatMain_ChatBarTextTouch",'Tap here to chat'))
 else
 	ChatBar:SetTextLabelText(ChatLocalization:Get("GameChat_ChatMain_ChatBarText",'To chat click here or press "/" key'))
@@ -224,7 +226,7 @@ function DoBackgroundFadeIn(setFadingTime)
 	ChatWindow:FadeInBackground((setFadingTime or ChatSettings.ChatDefaultFadeDuration))
 
 	local currentChannelObject = ChatWindow:GetCurrentChannel()
-	if (currentChannelObject) then
+	if currentChannelObject then
 
 		local Scroller = MessageLogDisplay.Scroller
 		Scroller.ScrollingEnabled = true
@@ -239,7 +241,7 @@ function DoBackgroundFadeOut(setFadingTime)
 	ChatWindow:FadeOutBackground((setFadingTime or ChatSettings.ChatDefaultFadeDuration))
 
 	local currentChannelObject = ChatWindow:GetCurrentChannel()
-	if (currentChannelObject) then
+	if currentChannelObject then
 
 		local Scroller = MessageLogDisplay.Scroller
 		Scroller.ScrollingEnabled = false
@@ -284,9 +286,9 @@ function UpdateFadingForMouseState(mouseState)
 
 	mouseStateChanged:Fire()
 
-	if (ChatBar:IsFocused()) then return end
+	if ChatBar:IsFocused() then return end
 
-	if (mouseState) then
+	if mouseState then
 		DoBackgroundFadeIn()
 		DoTextFadeIn()
 	else
@@ -299,24 +301,24 @@ spawn(function()
 	while true do
 		RunService.RenderStepped:wait()
 
-		while (mouseIsInWindow or ChatBar:IsFocused()) do
-			if (mouseIsInWindow) then
+		while mouseIsInWindow or ChatBar:IsFocused() do
+			if mouseIsInWindow then
 				mouseStateChanged.Event:wait()
 			end
-			if (ChatBar:IsFocused()) then
+			if ChatBar:IsFocused() then
 				chatBarFocusChanged.Event:wait()
 			end
 		end
 
-		if (not backgroundIsFaded) then
+		if not backgroundIsFaded then
 			local timeDiff = tick() - lastBackgroundFadeTime
-			if (timeDiff > ChatSettings.ChatWindowBackgroundFadeOutTime) then
+			if timeDiff > ChatSettings.ChatWindowBackgroundFadeOutTime then
 				DoBackgroundFadeOut()
 			end
 
-		elseif (not textIsFaded) then
+		elseif not textIsFaded then
 			local timeDiff = tick() - lastTextFadeTime
-			if (timeDiff > ChatSettings.ChatWindowTextFadeOutTime) then
+			if timeDiff > ChatSettings.ChatWindowTextFadeOutTime then
 				DoTextFadeOut()
 			end
 
@@ -364,25 +366,25 @@ function UpdateMousePosition(mousePos, ignoreForFadeIn)
 		end
 	end
 
-	if (newMouseState ~= mouseIsInWindow) then
+	if newMouseState ~= mouseIsInWindow then
 		UpdateFadingForMouseState(newMouseState)
 	end
 end
 
 UserInputService.InputChanged:connect(function(inputObject, gameProcessedEvent)
-	if (inputObject.UserInputType == Enum.UserInputType.MouseMovement) then
+	if inputObject.UserInputType == Enum.UserInputType.MouseMovement then
 		local mousePos = Vector2.new(inputObject.Position.X, inputObject.Position.Y)
-		UpdateMousePosition(mousePos, --[[ ignoreForFadeIn = ]] gameProcessedEvent)
+		UpdateMousePosition(mousePos, gameProcessedEvent)
 	end
 end)
 
-UserInputService.TouchTap:connect(function(tapPos, gameProcessedEvent)
-	UpdateMousePosition(tapPos[1], --[[ ignoreForFadeIn = ]] false)
+UserInputService.TouchTap:connect(function(tapPos)
+	UpdateMousePosition(tapPos[1], false)
 end)
 
-UserInputService.TouchMoved:connect(function(inputObject, gameProcessedEvent)
+UserInputService.TouchMoved:connect(function(inputObject)
 	local tapPos = Vector2.new(inputObject.Position.X, inputObject.Position.Y)
-	UpdateMousePosition(tapPos, --[[ ignoreForFadeIn = ]] false)
+	UpdateMousePosition(tapPos, false)
 end)
 
 if not FFlagFixMouseCapture then
@@ -427,7 +429,9 @@ do
 		end
 
 		function sig:connect(f)
-			if not f then error("connect(nil)", 2) end
+			if not f then
+				error("connect(nil)", 2)
+			end
 			return mSignaler.Event:connect(function()
 				f(unpack(mArgData, 1, mArgDataCount))
 			end)
@@ -443,14 +447,29 @@ do
 	end
 end
 
+function DoChatBarFocus()
+	if not ChatWindow:GetCoreGuiEnabled() then return end
+	if not ChatBar:GetEnabled() then return end
+
+	if not ChatBar:IsFocused() and ChatBar:GetVisible() then
+		moduleApiTable:SetVisible(true)
+		InstantFadeIn()
+		ChatBar:CaptureFocus()
+		moduleApiTable.ChatBarFocusChanged:fire(true)
+	end
+end
+
+chatBarFocusChanged.Event:connect(function(focused)
+	moduleApiTable.ChatBarFocusChanged:fire(focused)
+end)
 
 function SetVisibility(val)
 	ChatWindow:SetVisible(val)
 	moduleApiTable.VisibilityStateChanged:fire(val)
 	moduleApiTable.Visible = val
 
-	if (moduleApiTable.IsCoreGuiEnabled) then
-		if (val) then
+	if moduleApiTable.IsCoreGuiEnabled then
+		if val then
 			InstantFadeIn()
 		else
 			InstantFadeOut()
@@ -469,7 +488,7 @@ do
 	end
 
 	function moduleApiTable:SetVisible(visible)
-		if (ChatWindow:GetVisible() ~= visible) then
+		if ChatWindow:GetVisible() ~= visible then
 			SetVisibility(visible)
 		end
 	end
@@ -495,7 +514,7 @@ do
 		self.CoreGuiEnabled:fire(game:GetService("StarterGui"):GetCoreGuiEnabled(Enum.CoreGuiType.Chat))
 	end
 
-	function moduleApiTable:IsFocused(useWasFocused)
+	function moduleApiTable:IsFocused()
 		return ChatBar:IsFocused()
 	end
 
@@ -536,8 +555,8 @@ do
         end
         ContextActionService:BindAction(TOGGLE_CHAT_ACTION_NAME, handleAction, true, Enum.KeyCode.Slash)
     else
-        function moduleApiTable:SpecialKeyPressed(key, modifiers)
-            if (key == Enum.SpecialKey.ChatHotkey) then
+        function moduleApiTable:SpecialKeyPressed(key)
+            if key == Enum.SpecialKey.ChatHotkey then
                 if canChat then
                     DoChatBarFocus()
                 end
@@ -553,7 +572,7 @@ moduleApiTable.CoreGuiEnabled:connect(function(enabled)
 
 	ChatWindow:SetCoreGuiEnabled(enabled)
 
-	if (not enabled) then
+	if not enabled then
 		ChatBar:ReleaseFocus()
 		InstantFadeOut()
 	else
@@ -575,13 +594,15 @@ function trimTrailingSpaces(str)
 end
 
 moduleApiTable.ChatMakeSystemMessageEvent:connect(function(valueTable)
-	if (valueTable["Text"] and type(valueTable["Text"]) == "string") then
-		while (not DidFirstChannelsLoads) do wait() end
+	if valueTable["Text"] and type(valueTable["Text"]) == "string" then
+		while not DidFirstChannelsLoads do
+			wait()
+		end
 
 		local channel = ChatSettings.GeneralChannelName
 		local channelObj = ChatWindow:GetChannel(channel)
 
-		if (channelObj) then
+		if channelObj then
 			local messageObject = {
 				ID = -1,
 				FromSpeaker = nil,
@@ -606,7 +627,7 @@ end)
 moduleApiTable.ChatBarDisabledEvent:connect(function(disabled)
 	if canChat then
 		ChatBar:SetEnabled(not disabled)
-		if (disabled) then
+		if disabled then
 			ChatBar:ReleaseFocus()
 		end
 	end
@@ -624,53 +645,18 @@ end)
 --///////////////////////////////////////////////// Code to hook client UI up to server events
 --////////////////////////////////////////////////////////////////////////////////////////////
 
-function DoChatBarFocus()
-	if (not ChatWindow:GetCoreGuiEnabled()) then return end
-	if (not ChatBar:GetEnabled()) then return end
 
-	if (not ChatBar:IsFocused() and ChatBar:GetVisible()) then
-		moduleApiTable:SetVisible(true)
-		InstantFadeIn()
-		ChatBar:CaptureFocus()
-		moduleApiTable.ChatBarFocusChanged:fire(true)
-	end
-end
-
-chatBarFocusChanged.Event:connect(function(focused)
-	moduleApiTable.ChatBarFocusChanged:fire(focused)
-end)
 
 function DoSwitchCurrentChannel(targetChannel)
-	if (ChatWindow:GetChannel(targetChannel)) then
+	if ChatWindow:GetChannel(targetChannel) then
 		ChatWindow:SwitchCurrentChannel(targetChannel)
 	end
 end
 
-function SendMessageToSelfInTargetChannel(message, channelName, extraData)
-	local channelObj = ChatWindow:GetChannel(channelName)
-	if (channelObj) then
-		local messageData =
-		{
-			ID = -1,
-			FromSpeaker = nil,
-			SpeakerUserId = 0,
-			OriginalChannel = channelName,
-			IsFiltered = true,
-			MessageLength = string.len(message),
-			Message = trimTrailingSpaces(message),
-			MessageType = ChatConstants.MessageTypeSystem,
-			Time = os.time(),
-			ExtraData = extraData,
-		}
-
-		channelObj:AddMessageToChannel(messageData)
-	end
-end
-
 function chatBarFocused()
-	if (not mouseIsInWindow) then
+	if not mouseIsInWindow then
 		DoBackgroundFadeIn()
-		if (textIsFaded) then
+		if textIsFaded then
 			DoTextFadeIn()
 		end
 	end
@@ -679,11 +665,11 @@ function chatBarFocused()
 end
 
 --// Event for making player say chat message.
-function chatBarFocusLost(enterPressed, inputObject)
+function chatBarFocusLost(enterPressed)
 	DoBackgroundFadeIn()
 	chatBarFocusChanged:Fire(false)
 
-	if (enterPressed) then
+	if enterPressed then
 		local message = ChatBar:GetTextBox().Text
 
 		if ChatBar:IsInCustomState() then
@@ -776,10 +762,10 @@ end)
 
 EventFolder.OnNewMessage.OnClientEvent:connect(function(messageData, channelName)
 	local channelObj = ChatWindow:GetChannel(channelName)
-	if (channelObj) then
+	if channelObj then
 		channelObj:AddMessageToChannel(messageData)
 
-		if (messageData.FromSpeaker ~= LocalPlayer.Name) then
+		if messageData.FromSpeaker ~= LocalPlayer.Name then
 			ChannelsBar:UpdateMessagePostedInChannel(channelName)
 		end
 
@@ -801,7 +787,7 @@ EventFolder.OnNewSystemMessage.OnClientEvent:connect(function(messageData, chann
 	channelName = channelName or "System"
 
 	local channelObj = ChatWindow:GetChannel(channelName)
-	if (channelObj) then
+	if channelObj then
 		channelObj:AddMessageToChannel(messageData)
 
 		ChannelsBar:UpdateMessagePostedInChannel(channelName)
@@ -830,7 +816,7 @@ function HandleChannelJoined(channel, welcomeMessage, messageLog, channelNameCol
 		ChatWindow:RemoveChannel(channel)
 	end
 
-	if (channel == ChatSettings.GeneralChannelName) then
+	if channel == ChatSettings.GeneralChannelName then
 		DidFirstChannelsLoads = true
 	end
 
@@ -840,12 +826,12 @@ function HandleChannelJoined(channel, welcomeMessage, messageLog, channelNameCol
 
 	local channelObj = ChatWindow:AddChannel(channel)
 
-	if (channelObj) then
-		if (channel == ChatSettings.GeneralChannelName) then
+	if channelObj then
+		if channel == ChatSettings.GeneralChannelName then
 			DoSwitchCurrentChannel(channel)
 		end
 
-		if (messageLog) then
+		if messageLog then
 			local startIndex = 1
 			if #messageLog > ChatSettings.MessageHistoryLengthPerChannel then
 				startIndex = #messageLog - ChatSettings.MessageHistoryLengthPerChannel
@@ -865,7 +851,7 @@ function HandleChannelJoined(channel, welcomeMessage, messageLog, channelNameCol
 			end
 		end
 
-		if (welcomeMessage ~= "") then
+		if welcomeMessage ~= "" then
 			local welcomeMessageObject = {
 				ID = -1,
 				FromSpeaker = nil,
@@ -905,13 +891,13 @@ EventFolder.OnChannelLeft.OnClientEvent:connect(function(channel)
 	DoFadeInFromNewInformation()
 end)
 
-EventFolder.OnMuted.OnClientEvent:connect(function(channel)
+EventFolder.OnMuted.OnClientEvent:connect(function()
 	--// Do something eventually maybe?
 	--// This used to take away the chat bar in channels the player was muted in.
 	--// We found out this behavior was inconvenient for doing chat commands though.
 end)
 
-EventFolder.OnUnmuted.OnClientEvent:connect(function(channel)
+EventFolder.OnUnmuted.OnClientEvent:connect(function()
 	--// Same as above.
 end)
 
@@ -1109,13 +1095,13 @@ end)
 local initData = EventFolder.GetInitDataRequest:InvokeServer()
 
 -- Handle joining general channel first.
-for i, channelData in pairs(initData.Channels) do
+for _, channelData in pairs(initData.Channels) do
 	if channelData[1] == ChatSettings.GeneralChannelName then
 		HandleChannelJoined(channelData[1], channelData[2], channelData[3], channelData[4], true, false)
 	end
 end
 
-for i, channelData in pairs(initData.Channels) do
+for _, channelData in pairs(initData.Channels) do
 	if channelData[1] ~= ChatSettings.GeneralChannelName then
 		HandleChannelJoined(channelData[1], channelData[2], channelData[3], channelData[4], true, false)
 	end

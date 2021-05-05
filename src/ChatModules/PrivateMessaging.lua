@@ -11,10 +11,16 @@ local ChatSettings = require(ReplicatedModules:WaitForChild("ChatSettings"))
 local DisplayNameHelpers = require(ChatModules.Utility.DisplayNameHelpers)
 
 local ChatLocalization = nil
-pcall(function() ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization) end)
-if ChatLocalization == nil then ChatLocalization = {} end
+pcall(function()
+	ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization)
+end)
+if ChatLocalization == nil then
+	ChatLocalization = {}
+end
 if not ChatLocalization.FormatMessageToSend or not ChatLocalization.LocalizeFormattedMessage then
-	function ChatLocalization:FormatMessageToSend(key,default) return default end
+	function ChatLocalization:FormatMessageToSend(_, default)
+		return default
+	end
 end
 
 local errorTextColor = ChatSettings.ErrorMessageTextColor or Color3.fromRGB(245, 50, 50)
@@ -53,15 +59,15 @@ local function Run(ChatService)
 		local otherSpeakerInputName = message
 		local sendMessage = nil
 
-		if (string.sub(message, 1, 1) == "\"") then
+		if string.sub(message, 1, 1) == "\"" then
 			local pos = string.find(message, "\"", 2)
-			if (pos) then
+			if pos then
 				otherSpeakerInputName = string.sub(message, 2, pos - 1)
 				sendMessage = string.sub(message, pos + 2)
 			end
 		else
 			local first = string.match(message, "^[^%s]+")
-			if (first) then
+			if first then
 				otherSpeakerInputName = first
 				sendMessage = string.sub(message, string.len(otherSpeakerInputName) + 2)
 			end
@@ -105,11 +111,11 @@ local function Run(ChatService)
 					return
 				end
 
-				if (not speaker:IsInChannel(channelObj.Name)) then
+				if not speaker:IsInChannel(channelObj.Name) then
 					speaker:JoinChannel(channelObj.Name)
 				end
 
-				if (sendMessage and (string.len(sendMessage) > 0) ) then
+				if sendMessage and (string.len(sendMessage) > 0) then
 					speaker:SayMessage(sendMessage, channelObj.Name)
 				end
 
@@ -128,11 +134,11 @@ local function Run(ChatService)
 	local function WhisperCommandsFunction(fromSpeaker, message, channel)
 		local processedCommand = false
 
-		if (string.sub(message, 1, 3):lower() == "/w ") then
+		if string.sub(message, 1, 3):lower() == "/w " then
 			DoWhisperCommand(fromSpeaker, string.sub(message, 4), channel)
 			processedCommand = true
 
-		elseif (string.sub(message, 1, 9):lower() == "/whisper ") then
+		elseif string.sub(message, 1, 9):lower() == "/whisper " then
 			DoWhisperCommand(fromSpeaker, string.sub(message, 10), channel)
 			processedCommand = true
 
@@ -149,8 +155,8 @@ local function Run(ChatService)
 		local toSpeaker = ChatService:GetSpeaker(string.sub(channelName, 4))
 		local fromSpeakerChannelId = GetWhisperChannelId(fromSpeaker)
 
-		if (toSpeaker) then
-			if (not toSpeaker:IsInChannel(fromSpeakerChannelId)) then
+		if toSpeaker then
+			if not toSpeaker:IsInChannel(fromSpeakerChannelId) then
 				toSpeaker:JoinChannel(fromSpeakerChannelId)
 			end
 			toSpeaker:SendMessage(message, fromSpeakerChannelId, fromSpeaker, extraData)
@@ -159,7 +165,7 @@ local function Run(ChatService)
 		return true
 	end
 
-	local function PrivateMessageAddTypeFunction(speakerName, messageObj, channelName)
+	local function PrivateMessageAddTypeFunction(_, messageObj)
 		if ChatConstants.MessageTypeWhisper then
 			messageObj.MessageType = ChatConstants.MessageTypeWhisper
 		end
@@ -186,7 +192,7 @@ local function Run(ChatService)
 
 		local toSpeakerChannelId = GetWhisperChannelId(speakerName)
 
-		if (ChatService:GetChannel(toSpeakerChannelId)) then
+		if ChatService:GetChannel(toSpeakerChannelId) then
 			ChatService:RemoveChannel(toSpeakerChannelId)
 		end
 
@@ -209,7 +215,7 @@ local function Run(ChatService)
 	ChatService.SpeakerRemoved:connect(function(speakerName)
 		local whisperChannelId = GetWhisperChannelId(speakerName)
 
-		if (ChatService:GetChannel(whisperChannelId)) then
+		if ChatService:GetChannel(whisperChannelId) then
 			ChatService:RemoveChannel(whisperChannelId)
 		end
 	end)

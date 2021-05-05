@@ -7,12 +7,18 @@ local ReplicatedModules = Chat:WaitForChild("ClientChatModules")
 local ChatSettings = require(ReplicatedModules:WaitForChild("ChatSettings"))
 local ChatConstants = require(ReplicatedModules:WaitForChild("ChatConstants"))
 
-local ChatLocalization = nil
-pcall(function() ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization) end)
-if ChatLocalization == nil then ChatLocalization = {} end
+local ChatLocalization
+pcall(function()
+	ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization)
+end)
+if ChatLocalization == nil then
+	ChatLocalization = {}
+end
 
 if not ChatLocalization.FormatMessageToSend or not ChatLocalization.LocalizeFormattedMessage then
-	function ChatLocalization:FormatMessageToSend(key,default) return default end
+	function ChatLocalization:FormatMessageToSend(_, default)
+		return default
+	end
 end
 
 local function Run(ChatService)
@@ -25,7 +31,7 @@ local function Run(ChatService)
 	end
 
 	local function ProcessCommandsFunction(fromSpeaker, message, channel)
-		if (message:lower() == "/?" or message:lower() == "/help") then
+		if message:lower() == "/?" or message:lower() == "/help" then
 			local speaker = ChatService:GetSpeaker(fromSpeaker)
 			speaker:SendSystemMessage(ChatLocalization:FormatMessageToSend("GameChat_ChatCommandsTeller_Desc","These are the basic chat commands."), channel)
 			if ChatSettings.AllowMeCommand then
@@ -55,7 +61,7 @@ local function Run(ChatService)
 
 	if ChatSettings.GeneralChannelName then
 		local allChannel = ChatService:GetChannel(ChatSettings.GeneralChannelName)
-		if (allChannel) then
+		if allChannel then
 			allChannel.WelcomeMessage = ChatLocalization:FormatMessageToSend("GameChat_ChatCommandsTeller_AllChannelWelcomeMessage","Chat '/?' or '/help' for a list of chat commands.")
 		end
 	end

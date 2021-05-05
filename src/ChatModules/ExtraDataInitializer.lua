@@ -24,7 +24,6 @@ local function MakeIsInGroup(groupId, requiredRank)
 
 	return function(player)
 		if player and player.UserId then
-			local userId = player.UserId
 
 			local inGroup = false
 			local success, err = pcall(function() -- Many things can error is the IsInGroup check

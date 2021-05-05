@@ -8,7 +8,6 @@ local ChatConstants = require(clientChatModules:WaitForChild("ChatConstants"))
 local util = require(script.Parent:WaitForChild("Util"))
 
 function CreateMeCommandMessageLabel(messageData, channelName)
-	local message = messageData.Message
 	local extraData = messageData.ExtraData or {}
 	local useFont = extraData.Font or Enum.Font.SourceSansItalic
 	local useTextSize = extraData.TextSize or ChatSettings.ChatWindowTextSize

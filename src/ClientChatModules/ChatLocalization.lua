@@ -2,8 +2,11 @@
 
 local LocalizationService = game:GetService("LocalizationService")
 local ChatService = game:GetService("Chat")
-local success, userShouldLocalizeServerMessages = pcall(function() return UserSettings():IsUserFeatureEnabled("UserShouldLocalizeServerMessages") end)
-local userShouldLocalizeServerMessages = success and userShouldLocalizeServerMessages
+
+local userShouldLocalizeServerMessages 
+pcall(function()
+	userShouldLocalizeServerMessages = UserSettings():IsUserFeatureEnabled("UserShouldLocalizeServerMessages")
+end)
 
 local existingKey = {
 	["System"] = "InGame.Chat.Label.SystemMessagePrefix",

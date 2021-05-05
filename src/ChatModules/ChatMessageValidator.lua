@@ -9,10 +9,16 @@ local ChatSettings = require(ReplicatedModules:WaitForChild("ChatSettings"))
 local ChatConstants = require(ReplicatedModules:WaitForChild("ChatConstants"))
 
 local ChatLocalization = nil
-pcall(function() ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization) end)
-if ChatLocalization == nil then ChatLocalization = {} end
+pcall(function()
+	ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization)
+end)
+if ChatLocalization == nil then
+	ChatLocalization = {}
+end
 if not ChatLocalization.FormatMessageToSend or not ChatLocalization.LocalizeFormattedMessage then
-	function ChatLocalization:FormatMessageToSend(key,default) return default end
+	function ChatLocalization:FormatMessageToSend(_, default)
+		return default
+	end
 end
 
 local MAX_BYTES_PER_UTF8_CODEPOINT = 6

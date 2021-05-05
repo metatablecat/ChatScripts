@@ -3,7 +3,6 @@
 --	// Description: Settings module for configuring different aspects of the chat window.
 
 local PlayersService = game:GetService("Players")
-local ChatService = game:GetService("Chat")
 
 local clientChatModules = script.Parent
 local ChatConstants = require(clientChatModules:WaitForChild("ChatConstants"))
@@ -110,10 +109,10 @@ local ChangedEvent = Instance.new("BindableEvent")
 
 local proxyTable = setmetatable({},
 {
-	__index = function(tbl, index)
+	__index = function(_, index)
 		return module[index]
 	end,
-	__newindex = function(tbl, index, value)
+	__newindex = function(_, index, value)
 		module[index] = value
 		ChangedEvent:Fire(index, value)
 	end,

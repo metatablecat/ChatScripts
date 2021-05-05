@@ -4,7 +4,9 @@
 
 local userShouldMuteUnfilteredMessage = false
 do
-	local success, enabled = pcall(function() return UserSettings():IsUserFeatureEnabled("UserShouldMuteUnfilteredMessage") end)
+	local success, enabled = pcall(function()
+		return UserSettings():IsUserFeatureEnabled("UserShouldMuteUnfilteredMessage")
+	end)
 	userShouldMuteUnfilteredMessage = success and enabled
 end
 
@@ -22,11 +24,15 @@ local ChatConstants = require(replicatedModules:WaitForChild("ChatConstants"))
 local Util = require(modulesFolder:WaitForChild("Util"))
 
 local ChatLocalization = nil
-pcall(function() ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization) end)
+pcall(function()
+	ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization)
+end)
 ChatLocalization = ChatLocalization or {}
 
 if not ChatLocalization.FormatMessageToSend or not ChatLocalization.LocalizeFormattedMessage then
-	function ChatLocalization:FormatMessageToSend(key,default) return default end
+	function ChatLocalization:FormatMessageToSend(_, default)
+		return default
+	end
 end
 
 --////////////////////////////// Methods
@@ -38,14 +44,16 @@ methods.__index = methods
 function methods:SendSystemMessage(message, extraData)
 	local messageObj = self:InternalCreateMessageObject(message, nil, true, extraData)
 
-	local success, err = pcall(function() self.eMessagePosted:Fire(messageObj) end)
+	local success, err = pcall(function()
+		self.eMessagePosted:Fire(messageObj)
+	end)
 	if not success and err then
 		print("Error posting message: " ..err)
 	end
 
 	self:InternalAddMessageToHistoryLog(messageObj)
 
-	for i, speaker in pairs(self.Speakers) do
+	for _, speaker in pairs(self.Speakers) do
 		speaker:InternalSendSystemMessage(messageObj, self.Name)
 	end
 
@@ -54,7 +62,7 @@ end
 
 function methods:SendSystemMessageToSpeaker(message, speakerName, extraData)
 	local speaker = self.Speakers[speakerName]
-	if (speaker) then
+	if speaker then
 		local messageObj = self:InternalCreateMessageObject(message, nil, true, extraData)
 		speaker:InternalSendSystemMessage(messageObj, self.Name)
 	elseif RunService:IsStudio() then
@@ -120,7 +128,7 @@ function methods:SendMessageToSpeaker(message, speakerName, fromSpeakerName, ext
 			message,
 			textContext
 		)
-		if (filterSuccess) then
+		if filterSuccess then
 			messageObj.FilterResult = filteredMessage
 			messageObj.IsFilterResult = isFilterResult
 			messageObj.IsFiltered = true
@@ -133,7 +141,7 @@ end
 
 function methods:KickSpeaker(speakerName, reason)
 	local speaker = self.ChatService:GetSpeaker(speakerName)
-	if (not speaker) then
+	if not speaker then
 		error("Speaker \"" .. speakerName .. "\" does not exist!")
 	end
 
@@ -141,7 +149,7 @@ function methods:KickSpeaker(speakerName, reason)
 	local messageToChannel = ""
 	local playerName = speaker:GetNameForDisplay()
 
-	if (reason) then
+	if reason then
 		messageToSpeaker = string.format("You were kicked from '%s' for the following reason(s): %s", self.Name, reason)
 		messageToChannel = string.format("%s was kicked for the following reason(s): %s", playerName, reason)
 	else
@@ -156,26 +164,30 @@ end
 
 function methods:MuteSpeaker(speakerName, reason, length)
 	local speaker = self.ChatService:GetSpeaker(speakerName)
-	if (not speaker) then
+	if not speaker then
 		error("Speaker \"" .. speakerName .. "\" does not exist!")
 	end
 
 	self.Mutes[speakerName:lower()] = (length == 0 or length == nil) and 0 or (os.time() + length)
 
-	if (reason) then
+	if reason then
 		local playerName = speaker:GetNameForDisplay()
 
 		self:SendSystemMessage(string.format("%s was muted for the following reason(s): %s", playerName, reason))
 	end
 
-	local success, err = pcall(function() self.eSpeakerMuted:Fire(speakerName, reason, length) end)
+	local success, err = pcall(function()
+		self.eSpeakerMuted:Fire(speakerName, reason, length)
+	end)
 	if not success and err then
 		print("Error mutting speaker: " ..err)
 	end
 
 	local spkr = self.ChatService:GetSpeaker(speakerName)
-	if (spkr) then
-		local success, err = pcall(function() spkr.eMuted:Fire(self.Name, reason, length) end)
+	if spkr then
+		local success, err = pcall(function()
+			spkr.eMuted:Fire(self.Name, reason, length)
+		end)
 		if not success and err then
 			print("Error mutting speaker: " ..err)
 		end
@@ -185,20 +197,24 @@ end
 
 function methods:UnmuteSpeaker(speakerName)
 	local speaker = self.ChatService:GetSpeaker(speakerName)
-	if (not speaker) then
+	if not speaker then
 		error("Speaker \"" .. speakerName .. "\" does not exist!")
 	end
 
 	self.Mutes[speakerName:lower()] = nil
 
-	local success, err = pcall(function() self.eSpeakerUnmuted:Fire(speakerName) end)
+	local success, err = pcall(function()
+		self.eSpeakerUnmuted:Fire(speakerName)
+	end)
 	if not success and err then
 		print("Error unmuting speaker: " ..err)
 	end
 
 	local spkr = self.ChatService:GetSpeaker(speakerName)
-	if (spkr) then
-		local success, err = pcall(function() spkr.eUnmuted:Fire(self.Name) end)
+	if spkr then
+		local success, err = pcall(function()
+			spkr.eUnmuted:Fire(self.Name)
+		end)
 		if not success and err then
 			print("Error unmuting speaker: " ..err)
 		end
@@ -211,7 +227,7 @@ end
 
 function methods:GetSpeakerList()
 	local list = {}
-	for i, speaker in pairs(self.Speakers) do
+	for _, speaker in pairs(self.Speakers) do
 		table.insert(list, speaker.Name)
 	end
 	return list
@@ -282,10 +298,10 @@ function methods:GetHistoryLogForSpeaker(speaker)
 			--// into an actual string message to send to players for their chat history.
 			--// System messages aren't filtered the same way, so they just have a regular
 			--// text value in the Message field.
-			if (messageObj.MessageType == ChatConstants.MessageTypeDefault or messageObj.MessageType == ChatConstants.MessageTypeMeCommand) then
+			if messageObj.MessageType == ChatConstants.MessageTypeDefault or messageObj.MessageType == ChatConstants.MessageTypeMeCommand then
 				local filterResult = messageObj.FilterResult
-				if (messageObj.IsFilterResult) then
-					if (player) then
+				if messageObj.IsFilterResult then
+					if player then
 						messageObj.Message = filterResult:GetChatForUserAsync(player.UserId)
 					else
 						messageObj.Message = filterResult:GetNonChatStringForBroadcastAsync()
@@ -304,7 +320,7 @@ end
 --///////////////// Internal-Use Methods
 --//////////////////////////////////////
 function methods:InternalDestroy()
-	for i, speaker in pairs(self.Speakers) do
+	for _, speaker in pairs(self.Speakers) do
 		speaker:LeaveChannel(self.Name)
 	end
 
@@ -320,7 +336,7 @@ end
 
 function methods:InternalDoMessageFilter(speakerName, messageObj, channel)
 	local filtersIterator = self.FilterMessageFunctions:GetIterator()
-	for funcId, func, priority in filtersIterator do
+	for funcId, func in filtersIterator do
 		local success, errorMessage = pcall(function()
 			func(speakerName, messageObj, channel)
 		end)
@@ -333,7 +349,7 @@ end
 
 function methods:InternalDoProcessCommands(speakerName, message, channel)
 	local commandsIterator = self.ProcessCommandsFunctions:GetIterator()
-	for funcId, func, priority in commandsIterator do
+	for funcId, func in commandsIterator do
 		local success, returnValue = pcall(function()
 			local ret = func(speakerName, message, channel)
 			if type(ret) ~= "boolean" then
@@ -353,11 +369,11 @@ function methods:InternalDoProcessCommands(speakerName, message, channel)
 end
 
 function methods:InternalPostMessage(fromSpeaker, message, extraData)
-	if (self:InternalDoProcessCommands(fromSpeaker.Name, message, self.Name)) then return false end
+	if self:InternalDoProcessCommands(fromSpeaker.Name, message, self.Name) then return false end
 
-	if (self.Mutes[fromSpeaker.Name:lower()] ~= nil) then
+	if self.Mutes[fromSpeaker.Name:lower()] ~= nil then
 		local t = self.Mutes[fromSpeaker.Name:lower()]
-		if (t > 0 and os.time() > t) then
+		if t > 0 and os.time() > t then
 			self:UnmuteSpeaker(fromSpeaker.Name)
 		else
 			self:SendSystemMessageToSpeaker(ChatLocalization:FormatMessageToSend("GameChat_ChatChannel_MutedInChannel","You are muted and cannot talk in this channel"), fromSpeaker.Name)
@@ -387,7 +403,7 @@ function methods:InternalPostMessage(fromSpeaker, message, extraData)
 	message = self:SendMessageObjToFilters(message, messageObj, fromSpeaker)
 
 	local sentToList = {}
-	for i, speaker in pairs(self.Speakers) do
+	for _, speaker in pairs(self.Speakers) do
 		local isMuted = speaker:IsSpeakerMuted(fromSpeaker.Name)
 		if not isMuted and self:CanCommunicate(fromSpeaker, speaker) then
 			table.insert(sentToList, speaker.Name)
@@ -408,7 +424,9 @@ function methods:InternalPostMessage(fromSpeaker, message, extraData)
 		end
 	end
 
-	local success, err = pcall(function() self.eMessagePosted:Fire(messageObj) end)
+	local success, err = pcall(function()
+		self.eMessagePosted:Fire(messageObj)
+	end)
 	if not success and err then
 		print("Error posting message: " ..err)
 	end
@@ -419,7 +437,7 @@ function methods:InternalPostMessage(fromSpeaker, message, extraData)
 		message,
 		textFilterContext
 	)
-	if (filterSuccess) then
+	if filterSuccess then
 		messageObj.FilterResult = filteredMessage
 		messageObj.IsFilterResult = isFilterResult
 	else
@@ -430,7 +448,7 @@ function methods:InternalPostMessage(fromSpeaker, message, extraData)
 
 	for _, speakerName in pairs(sentToList) do
 		local speaker = self.Speakers[speakerName]
-		if (speaker) then
+		if speaker then
 			speaker:InternalSendFilteredMessageWithFilterResult(messageObj, self.Name)
 		end
 	end
@@ -465,26 +483,30 @@ function methods:InternalPostMessage(fromSpeaker, message, extraData)
 end
 
 function methods:InternalAddSpeaker(speaker)
-	if (self.Speakers[speaker.Name]) then
+	if self.Speakers[speaker.Name] then
 		warn("Speaker \"" .. speaker.name .. "\" is already in the channel!")
 		return
 	end
 
 	self.Speakers[speaker.Name] = speaker
-	local success, err = pcall(function() self.eSpeakerJoined:Fire(speaker.Name) end)
+	local success, err = pcall(function()
+		self.eSpeakerJoined:Fire(speaker.Name)
+	end)
 	if not success and err then
 		print("Error removing channel: " ..err)
 	end
 end
 
 function methods:InternalRemoveSpeaker(speaker)
-	if (not self.Speakers[speaker.Name]) then
+	if not self.Speakers[speaker.Name] then
 		warn("Speaker \"" .. speaker.name .. "\" is not in the channel!")
 		return
 	end
 
 	self.Speakers[speaker.Name] = nil
-	local success, err = pcall(function() self.eSpeakerLeft:Fire(speaker.Name) end)
+	local success, err = pcall(function()
+		self.eSpeakerLeft:Fire(speaker.Name)
+	end)
 	if not success and err then
 		print("Error removing speaker: " ..err)
 	end
@@ -492,7 +514,7 @@ end
 
 function methods:InternalRemoveExcessMessagesFromLog()
 	local remove = table.remove
-	while (#self.ChatHistory > self.MaxHistory) do
+	while #self.ChatHistory > self.MaxHistory do
 		remove(self.ChatHistory, 1)
 	end
 end
@@ -503,7 +525,7 @@ function methods:InternalAddMessageToHistoryLog(messageObj)
 	self:InternalRemoveExcessMessagesFromLog()
 end
 
-function methods:GetMessageType(message, fromSpeaker)
+function methods:GetMessageType(_, fromSpeaker)
 	if fromSpeaker == nil then
 		return ChatConstants.MessageTypeSystem
 	end
@@ -560,7 +582,7 @@ function methods:InternalCreateMessageObject(message, fromSpeaker, isFiltered, e
 		end
 	end
 
-	if (extraData) then
+	if extraData then
 		for k, v in pairs(extraData) do
 			messageObj.ExtraData[k] = v
 		end
@@ -571,7 +593,7 @@ end
 
 function methods:SetChannelNameColor(color)
 	self.ChannelNameColor = color
-	for i, speaker in pairs(self.Speakers) do
+	for _, speaker in pairs(self.Speakers) do
 		speaker:UpdateChannelNameColor(self.Name, color)
 	end
 end

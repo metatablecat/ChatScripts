@@ -5,8 +5,15 @@
 local util = require(script.Parent:WaitForChild("Util"))
 
 local ChatLocalization = nil
-pcall(function() ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization) end)
-if ChatLocalization == nil then ChatLocalization = { Get = function(self, key, default) return default end } end
+pcall(function()
+	ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization)
+end)
+if ChatLocalization == nil then
+	ChatLocalization = {
+		Get = function(self, _, default)
+			return default
+		end}
+	end
 
 function ProcessMessage(message, ChatWindow, ChatSettings)
 	if string.sub(message, 1, 3):lower() ~= "/c " then

@@ -12,9 +12,7 @@ local clientChatModules = Chat:WaitForChild("ClientChatModules")
 local messageCreatorModules = clientChatModules:WaitForChild("MessageCreatorModules")
 local messageCreatorUtil = require(messageCreatorModules:WaitForChild("Util"))
 local modulesFolder = script.Parent
-local ChatSettings = require(clientChatModules:WaitForChild("ChatSettings"))
 local moduleObjectPool = require(modulesFolder:WaitForChild("ObjectPool"))
-local MessageSender = require(modulesFolder:WaitForChild("MessageSender"))
 
 --////////////////////////////// Methods
 --//////////////////////////////////////
@@ -69,7 +67,9 @@ function methods:WrapIntoMessageObject(messageData, createdMessageObject)
 	obj.ID = messageData.ID
 	obj.BaseFrame = BaseFrame
 	obj.BaseMessage = BaseMessage
-	obj.UpdateTextFunction = UpdateTextFunction or function() warn("NO MESSAGE RESIZE FUNCTION") end
+	obj.UpdateTextFunction = UpdateTextFunction or function()
+		warn("NO MESSAGE RESIZE FUNCTION")
+	end
 	obj.GetHeightFunction = GetHeightFunction
 	obj.FadeInFunction = FadeInFunction
 	obj.FadeOutFunction = FadeOutFunction

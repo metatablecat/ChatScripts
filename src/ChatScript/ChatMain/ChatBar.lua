@@ -26,11 +26,16 @@ local CurveUtil = require(modulesFolder:WaitForChild("CurveUtil"))
 local commandModules = clientChatModules:WaitForChild("CommandModules")
 local WhisperModule = require(commandModules:WaitForChild("Whisper"))
 
-local MessageSender = require(modulesFolder:WaitForChild("MessageSender"))
-
 local ChatLocalization = nil
-pcall(function() ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization) end)
-if ChatLocalization == nil then ChatLocalization = {} function ChatLocalization:Get(key,default) return default end end
+pcall(function()
+	ChatLocalization = require(game:GetService("Chat").ClientChatModules.ChatLocalization)
+end)
+if ChatLocalization == nil then
+	ChatLocalization = {}
+	function ChatLocalization:Get(_, default)
+		return default
+	end
+end
 
 --////////////////////////////// Methods
 --//////////////////////////////////////
@@ -167,9 +172,9 @@ function methods:SetUpTextBoxEvents(TextBox, TextLabel, MessageModeTextButton)
 	end
 
 	--// Code for getting back into general channel from other target channel when pressing backspace.
-	self.TextBoxConnections.UserInputBegan = UserInputService.InputBegan:connect(function(inputObj, gpe)
-		if (inputObj.KeyCode == Enum.KeyCode.Backspace) then
-			if (self:IsFocused() and TextBox.Text == "") then
+	self.TextBoxConnections.UserInputBegan = UserInputService.InputBegan:connect(function(inputObj)
+		if inputObj.KeyCode == Enum.KeyCode.Backspace then
+			if self:IsFocused() and TextBox.Text == "" then
 				self:SetChannelTarget(ChatSettings.GeneralChannelName)
 			end
 		end
@@ -225,9 +230,9 @@ function methods:SetUpTextBoxEvents(TextBox, TextLabel, MessageModeTextButton)
 		end
 	end)
 
-	self.TextBoxConnections.TextBoxFocusLost = TextBox.FocusLost:connect(function(enterPressed, inputObject)
+	self.TextBoxConnections.TextBoxFocusLost = TextBox.FocusLost:connect(function(_, inputObject)
 		self:CalculateSize()
-		if (inputObject and inputObject.KeyCode == Enum.KeyCode.Escape) then
+		if inputObject and inputObject.KeyCode == Enum.KeyCode.Escape then
 			TextBox.Text = ""
 		end
 		UpdateOnFocusStatusChanged(false)
@@ -338,7 +343,7 @@ function methods:CalculateSize()
 	end
 
 	local newTargetYSize = bounds - textSize
-	if (self.TargetYSize ~= newTargetYSize) then
+	if self.TargetYSize ~= newTargetYSize then
 		self.TargetYSize = newTargetYSize
 		self:TweenToTargetYSize()
 	end
@@ -358,8 +363,10 @@ function methods:TweenToTargetYSize()
 	local pixelDistance = math.abs(endAbsoluteSizeY - curAbsoluteSizeY)
 	local tweeningTime = math.min(1, (pixelDistance * (1 / self.TweenPixelsPerSecond))) -- pixelDistance * (seconds per pixels)
 
-	local success = pcall(function() self.GuiObject:TweenSize(endSize, Enum.EasingDirection.Out, Enum.EasingStyle.Quad, tweeningTime, true) end)
-	if (not success) then
+	local success = pcall(function()
+		self.GuiObject:TweenSize(endSize, Enum.EasingDirection.Out, Enum.EasingStyle.Quad, tweeningTime, true)
+	end)
+	if not success then
 		self.GuiObject.Size = endSize
 	end
 end
@@ -474,7 +481,7 @@ function methods:GetCustomMessage()
 	return nil
 end
 
-function methods:CustomStateProcessCompletedMessage(message)
+function methods:CustomStateProcessCompletedMessage()
 	if self.InCustomState then
 		return self.CustomState:ProcessCompletedMessage()
 	end
@@ -586,7 +593,7 @@ function module.new(CommandProcessor, ChatWindow)
 	obj:InitializeAnimParams()
 
 	ChatSettings.SettingsChanged:connect(function(setting, value)
-		if (setting == "ChatBarTextSize") then
+		if setting == "ChatBarTextSize" then
 			obj:SetTextSize(value)
 		end
 	end)

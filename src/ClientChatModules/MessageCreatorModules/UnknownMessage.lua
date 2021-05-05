@@ -4,9 +4,6 @@
 --	// Just print that there was a message with no creator for now.
 
 local MESSAGE_TYPE = "UnknownMessage"
-
-local clientChatModules = script.Parent.Parent
-local ChatSettings = require(clientChatModules:WaitForChild("ChatSettings"))
 local util = require(script.Parent:WaitForChild("Util"))
 
 function CreateUnknownMessageLabel(messageData)

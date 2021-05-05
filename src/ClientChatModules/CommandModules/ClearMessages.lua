@@ -4,10 +4,10 @@
 
 local util = require(script.Parent:WaitForChild("Util"))
 
-function ProcessMessage(message, ChatWindow, ChatSettings)
+function ProcessMessage(message, ChatWindow)
 	if string.sub(message, 1, 4):lower() == "/cls" or string.sub(message, 1, 6):lower() == "/clear" then
 		local currentChannel = ChatWindow:GetCurrentChannel()
-		if (currentChannel) then
+		if currentChannel then
 			currentChannel:ClearMessageLog()
 		end
 		return true

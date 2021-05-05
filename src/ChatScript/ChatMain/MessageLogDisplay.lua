@@ -61,7 +61,7 @@ function methods:UpdateMessageFiltered(messageData)
 	local searchIndex = 1
 	local searchTable = self.MessageObjectLog
 
-	while (#searchTable >= searchIndex) do
+	while #searchTable >= searchIndex do
 		local obj = searchTable[searchIndex]
 
 		if obj.ID == messageData.ID then
@@ -194,11 +194,11 @@ function methods:SetCurrentChannelName(name)
 	self.CurrentChannelName = name
 end
 
-function methods:FadeOutBackground(duration)
+function methods:FadeOutBackground()
 	--// Do nothing
 end
 
-function methods:FadeInBackground(duration)
+function methods:FadeInBackground()
 	--// Do nothing
 end
 
@@ -228,7 +228,7 @@ end
 
 --// ToDo: Move to common modules
 function methods:WaitUntilParentedCorrectly()
-	while (not self.GuiObject:IsDescendantOf(game:GetService("Players").LocalPlayer)) do
+	while not self.GuiObject:IsDescendantOf(game:GetService("Players").LocalPlayer) do
 		self.GuiObject.AncestryChanged:wait()
 	end
 end
@@ -253,7 +253,9 @@ function module.new()
 	obj.CurrentChannelName = ""
 
 	obj.GuiObject:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-		spawn(function() obj:ReorderAllMessages() end)
+		spawn(function()
+			obj:ReorderAllMessages()
+		end)
 	end)
 
 	local wasScrolledDown = true

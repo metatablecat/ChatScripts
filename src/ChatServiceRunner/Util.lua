@@ -25,7 +25,7 @@ local SortedFunctionContainer = {}; do
 		self.RegisteredPriorites = {}
 		for priority, functions in pairs(self.FunctionMap) do
 			local functionsEmpty = true
-			for funcId, funciton in pairs(functions) do
+			for _ in pairs(functions) do
 				functionsEmpty = false
 				break
 			end

@@ -4,8 +4,6 @@
 
 local module = {}
 
-local PlayerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-
 --////////////////////////////// Include
 --//////////////////////////////////////
 local Chat = game:GetService("Chat")
@@ -134,7 +132,7 @@ function methods:CreateGuiObjects(targetParent)
 	pageButtonArrowImage = "rbxassetid://471630112"
 
 
-	local PageLeftButton = Instance.new("ImageButton", BaseFrame)
+	local PageLeftButton = Instance.new("ImageButton")
 	PageLeftButton.Selectable = ChatSettings.GamepadNavigationEnabled
 	PageLeftButton.Name = "PageLeftButton"
 	PageLeftButton.SizeConstraint = Enum.SizeConstraint.RelativeYY
@@ -143,19 +141,23 @@ function methods:CreateGuiObjects(targetParent)
 	PageLeftButton.Position = UDim2.new(0, 4, scaleOther, 0)
 	PageLeftButton.Visible = false
 	PageLeftButton.Image = pageButtonImage
-	local ArrowLabel = Instance.new("ImageLabel", PageLeftButton)
+	PageLeftButton.Parent = BaseFrame
+
+	local ArrowLabel = Instance.new("ImageLabel")
 	ArrowLabel.Name = "ArrowLabel"
 	ArrowLabel.BackgroundTransparency = 1
 	ArrowLabel.Size = UDim2.new(0.4, 0, 0.4, 0)
 	ArrowLabel.Image = pageButtonArrowImage
+	ArrowLabel.Parent = PageLeftButton
 
-	local PageRightButtonPositionalHelper = Instance.new("Frame", BaseFrame)
+	local PageRightButtonPositionalHelper = Instance.new("Frame")
 	PageRightButtonPositionalHelper.Selectable = false
 	PageRightButtonPositionalHelper.BackgroundTransparency = 1
 	PageRightButtonPositionalHelper.Name = "PositionalHelper"
 	PageRightButtonPositionalHelper.Size = PageLeftButton.Size
 	PageRightButtonPositionalHelper.SizeConstraint = PageLeftButton.SizeConstraint
 	PageRightButtonPositionalHelper.Position = UDim2.new(1, 0, scaleOther, 0)
+	PageRightButtonPositionalHelper.Parent = BaseFrame
 
 	local PageRightButton = PageLeftButton:Clone()
 	PageRightButton.Parent = PageRightButtonPositionalHelper
@@ -185,8 +187,12 @@ function methods:CreateGuiObjects(targetParent)
 	self.GuiObjects.PageRightButtonArrow = PageRightButton.ArrowLabel
 	self:AnimGuiObjects()
 
-	PageLeftButton.MouseButton1Click:connect(function() self:ScrollChannelsFrame(-1) end)
-	PageRightButton.MouseButton1Click:connect(function() self:ScrollChannelsFrame(1) end)
+	PageLeftButton.MouseButton1Click:connect(function()
+		self:ScrollChannelsFrame(-1)
+	end)
+	PageRightButton.MouseButton1Click:connect(function()
+		self:ScrollChannelsFrame(1)
+	end)
 
 	self:ScrollChannelsFrame(0)
 end
@@ -194,7 +200,7 @@ end
 
 function methods:UpdateMessagePostedInChannel(channelName)
 	local tab = self:GetChannelTab(channelName)
-	if (tab) then
+	if tab then
 		tab:UpdateMessagePostedInChannel()
 	else
 		warn("ChannelsTab '" .. channelName .. "' does not exist!")
@@ -202,7 +208,7 @@ function methods:UpdateMessagePostedInChannel(channelName)
 end
 
 function methods:AddChannelTab(channelName)
-	if (self:GetChannelTab(channelName)) then
+	if self:GetChannelTab(channelName) then
 		error("Channel tab '" .. channelName .. "'already exists!")
 	end
 
@@ -213,7 +219,7 @@ function methods:AddChannelTab(channelName)
 	self.NumTabs = self.NumTabs + 1
 	self:OrganizeChannelTabs()
 
-	if (ChatSettings.RightClickToLeaveChannelEnabled) then
+	if ChatSettings.RightClickToLeaveChannelEnabled then
 		tab.NameTag.MouseButton2Click:connect(function()
 			self.LeaveConfirmationNotice.Text = string.format("Leave channel %s?", tab.ChannelName)
 			self.LeaveConfirmationFrame.LeaveTarget.Value = tab.ChannelName
@@ -225,7 +231,7 @@ function methods:AddChannelTab(channelName)
 end
 
 function methods:RemoveChannelTab(channelName)
-	if (not self:GetChannelTab(channelName)) then
+	if not self:GetChannelTab(channelName) then
 		error("Channel tab '" .. channelName .. "'does not exist!")
 	end
 
@@ -247,8 +253,8 @@ function methods:OrganizeChannelTabs()
 	table.insert(order, self:GetChannelTab(ChatSettings.GeneralChannelName))
 	table.insert(order, self:GetChannelTab("System"))
 
-	for tabIndexName, tab in pairs(self.ChannelTabs) do
-		if (tab.ChannelName ~= ChatSettings.GeneralChannelName and tab.ChannelName ~= "System") then
+	for _, tab in pairs(self.ChannelTabs) do
+		if tab.ChannelName ~= ChatSettings.GeneralChannelName and tab.ChannelName ~= "System" then
 			table.insert(order, tab)
 		end
 	end
@@ -264,21 +270,21 @@ function methods:OrganizeChannelTabs()
 end
 
 function methods:ResizeChannelTabText(textSize)
-	for i, tab in pairs(self.ChannelTabs) do
+	for _, tab in pairs(self.ChannelTabs) do
 		tab:SetTextSize(textSize)
 	end
 end
 
 function methods:ScrollChannelsFrame(dir)
-	if (self.ScrollChannelsFrameLock) then return end
+	if self.ScrollChannelsFrameLock then return end
 	self.ScrollChannelsFrameLock = true
 
 	local tabNumber = ChatSettings.ChannelsBarFullTabSize
 
 	local newPageNum = self.CurPageNum + dir
-	if (newPageNum < 0) then
+	if newPageNum < 0 then
 		newPageNum = 0
-	elseif (newPageNum > 0 and newPageNum + tabNumber > self.NumTabs) then
+	elseif newPageNum > 0 and newPageNum + tabNumber > self.NumTabs then
 		newPageNum = self.NumTabs - tabNumber
 	end
 
@@ -305,7 +311,7 @@ function methods:ScrollChannelsFrame(dir)
 end
 
 function methods:FadeOutBackground(duration)
-	for channelName, channelObj in pairs(self.ChannelTabs) do
+	for _, channelObj in pairs(self.ChannelTabs) do
 		channelObj:FadeOutBackground(duration)
 	end
 
@@ -314,7 +320,7 @@ function methods:FadeOutBackground(duration)
 end
 
 function methods:FadeInBackground(duration)
-	for channelName, channelObj in pairs(self.ChannelTabs) do
+	for _, channelObj in pairs(self.ChannelTabs) do
 		channelObj:FadeInBackground(duration)
 	end
 
@@ -323,13 +329,13 @@ function methods:FadeInBackground(duration)
 end
 
 function methods:FadeOutText(duration)
-	for channelName, channelObj in pairs(self.ChannelTabs) do
+	for _, channelObj in pairs(self.ChannelTabs) do
 		channelObj:FadeOutText(duration)
 	end
 end
 
 function methods:FadeInText(duration)
-	for channelName, channelObj in pairs(self.ChannelTabs) do
+	for _, channelObj in pairs(self.ChannelTabs) do
 		channelObj:FadeInText(duration)
 	end
 end
@@ -348,7 +354,7 @@ function methods:InitializeAnimParams()
 end
 
 function methods:Update(dtScale)
-	for channelName, channelObj in pairs(self.ChannelTabs) do
+	for _, channelObj in pairs(self.ChannelTabs) do
 		channelObj:Update(dtScale)
 	end
 
@@ -364,7 +370,7 @@ end
 
 --// ToDo: Move to common modules
 function methods:WaitUntilParentedCorrectly()
-	while (not self.GuiObject:IsDescendantOf(game:GetService("Players").LocalPlayer)) do
+	while not self.GuiObject:IsDescendantOf(game:GetService("Players").LocalPlayer) do
 		self.GuiObject.AncestryChanged:wait()
 	end
 end
@@ -389,7 +395,7 @@ function module.new()
 	obj:InitializeAnimParams()
 
 	ChatSettings.SettingsChanged:connect(function(setting, value)
-		if (setting == "ChatChannelsTabTextSize") then
+		if setting == "ChatChannelsTabTextSize" then
 			obj:ResizeChannelTabText(value)
 		end
 	end)
