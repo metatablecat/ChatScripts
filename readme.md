@@ -4,9 +4,9 @@ A self maintained repository for housing Roblox's chat scripts from 2016
 # Why?
 The Roblox Chat scripts are continued to be maintained by Roblox, however it has many issues which would be easier to fix in a self-hosted repsitory instead of relying on Roblox.
 
-The goal of this project to clean up the source code as well as providing much wanted features from developers, as well as removing old trailing code that is no longer used (ex. ``SwallowGuestChat``)
+The goal of this project to clean up the source code as well as providing much wanted features from developers, and removing old trailing code that is no longer used (ex. ``SwallowGuestChat``)
 
-# Instalation
+# Installation
 The source is available as a Rojo project and a prebuilt RBXM.
 
 * Method 1: Rojo Project
