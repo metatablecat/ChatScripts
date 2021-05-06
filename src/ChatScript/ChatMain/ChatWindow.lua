@@ -139,13 +139,14 @@ function methods:CreateGuiObjects(targetParent)
 
 	local deviceType = DEVICE_DESKTOP
 
-	local screenGuiParent = GetScreenGuiParent()
-	if screenGuiParent.AbsoluteSize.X <= PHONE_SCREEN_WIDTH then
-		deviceType = DEVICE_PHONE
+	do
+		local screenGuiParent = GetScreenGuiParent()
+		if screenGuiParent.AbsoluteSize.X <= PHONE_SCREEN_WIDTH then
+			deviceType = DEVICE_PHONE
 
-	elseif screenGuiParent.AbsoluteSize.X <= TABLET_SCREEN_WIDTH then
-		deviceType = DEVICE_TABLET
-
+		elseif screenGuiParent.AbsoluteSize.X <= TABLET_SCREEN_WIDTH then
+			deviceType = DEVICE_TABLET
+		end
 	end
 
 	local checkSizeLock = false
@@ -174,11 +175,9 @@ function methods:CreateGuiObjects(targetParent)
 		if absSizeX < minSizePixelX then
 			local offset = UDim2.new(0, minSizePixelX - absSizeX, 0, 0)
 			BaseFrame.Size = BaseFrame.Size + offset
-
 		elseif absSizeX > maxSizePixelX then
 			local offset = UDim2.new(0, maxSizePixelX - absSizeX, 0, 0)
 			BaseFrame.Size = BaseFrame.Size + offset
-
 		end
 
 		if absSizeY < minSizePixelY then

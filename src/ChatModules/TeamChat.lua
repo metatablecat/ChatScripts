@@ -27,12 +27,12 @@ local function Run(ChatService)
 
 	local Players = game:GetService("Players")
 
-	local channel = ChatService:AddChannel("Team")
-	channel.WelcomeMessage = ChatLocalization:FormatMessageToSend("GameChat_TeamChat_WelcomeMessage","This is a private channel between you and your team members.")
-	channel.Joinable = false
-	channel.Leavable = false
-	channel.AutoJoin = false
-	channel.Private = true
+	local teamChannel = ChatService:AddChannel("Team")
+	teamChannel.WelcomeMessage = ChatLocalization:FormatMessageToSend("GameChat_TeamChat_WelcomeMessage","This is a private channel between you and your team members.")
+	teamChannel.Joinable = false
+	teamChannel.Leavable = false
+	teamChannel.AutoJoin = false
+	teamChannel.Private = true
 
 	local function TeamChatReplicationFunction(fromSpeaker, message, channelName)
 		local speakerObj = ChatService:GetSpeaker(fromSpeaker)
@@ -66,7 +66,7 @@ local function Run(ChatService)
 		return true
 	end
 
-	channel:RegisterProcessCommandsFunction("replication_function", TeamChatReplicationFunction, ChatConstants.LowPriority)
+	teamChannel:RegisterProcessCommandsFunction("replication_function", TeamChatReplicationFunction, ChatConstants.LowPriority)
 
 	local function DoTeamCommand(fromSpeaker, message, channel)
 		if message == nil then
@@ -133,16 +133,16 @@ local function Run(ChatService)
 
 	local function PutSpeakerInCorrectTeamChatState(speakerObj, playerObj)
 		if playerObj.Neutral or playerObj.Team == nil then
-			speakerObj:UpdateChannelNameColor(channel.Name, GetDefaultChannelNameColor())
+			speakerObj:UpdateChannelNameColor(teamChannel.Name, GetDefaultChannelNameColor())
 
-			if speakerObj:IsInChannel(channel.Name) then
-				speakerObj:LeaveChannel(channel.Name)
+			if speakerObj:IsInChannel(teamChannel.Name) then
+				speakerObj:LeaveChannel(teamChannel.Name)
 			end
 		elseif not playerObj.Neutral and playerObj.Team then
-			speakerObj:UpdateChannelNameColor(channel.Name, playerObj.Team.TeamColor.Color)
+			speakerObj:UpdateChannelNameColor(teamChannel.Name, playerObj.Team.TeamColor.Color)
 
-			if not speakerObj:IsInChannel(channel.Name) then
-				speakerObj:JoinChannel(channel.Name)
+			if not speakerObj:IsInChannel(teamChannel.Name) then
+				speakerObj:JoinChannel(teamChannel.Name)
 			end
 		end
 	end
@@ -166,13 +166,13 @@ local function Run(ChatService)
 					PutSpeakerInCorrectTeamChatState(speakerObj, player)
 				elseif property == "Team" then
 					PutSpeakerInCorrectTeamChatState(speakerObj, player)
-					if speakerObj:IsInChannel(channel.Name) then
+					if speakerObj:IsInChannel(teamChannel.Name) then
 						local msg = ChatLocalization:FormatMessageToSend("GameChat_TeamChat_NowInTeam",
 							string.format("You are now on the '%s' team.", player.Team.Name),
 							"RBX_NAME",
 							player.Team.Name
 						)
-						speakerObj:SendSystemMessage(msg, channel.Name)
+						speakerObj:SendSystemMessage(msg, teamChannel.Name)
 					end
 				end
 			end

@@ -3,7 +3,7 @@
 --	// Description: Whisper chat bar manipulation.
 
 local util = require(script.Parent:WaitForChild("Util"))
-local ChatSettings = require(script.Parent.Parent:WaitForChild("ChatSettings"))
+local settings = require(script.Parent.Parent:WaitForChild("ChatSettings"))
 
 local PlayersService = game:GetService("Players")
 
@@ -39,8 +39,8 @@ function whisperStateMethods:TrimWhiteSpace(text)
 end
 
 function whisperStateMethods:ShouldAutoCompleteNames()
-	if ChatSettings.WhisperCommandAutoCompletePlayerNames ~= nil then
-		return ChatSettings.WhisperCommandAutoCompletePlayerNames
+	if settings.WhisperCommandAutoCompletePlayerNames ~= nil then
+		return settings.WhisperCommandAutoCompletePlayerNames
 	end
 	return true
 end
@@ -60,7 +60,7 @@ function whisperStateMethods:GetWhisperingPlayer(enteredText)
 					possibleUserNameMatches[players[i]] = players[i].Name:lower()
 				end
 
-				if ChatSettings.WhisperByDisplayName then
+				if settings.WhisperByDisplayName then
 					local lowerDisplayName = players[i].DisplayName:lower()
 					if string.sub(lowerDisplayName, 1, string.len(possiblePlayerName)) == possiblePlayerName then
 						possibleDisplayNameMatches[players[i]] = lowerDisplayName
@@ -81,7 +81,7 @@ function whisperStateMethods:GetWhisperingPlayer(enteredText)
 			end
 		end
 
-		if ChatSettings.WhisperByDisplayName then
+		if settings.WhisperByDisplayName then
 			for player, playerName in pairs(possibleDisplayNameMatches) do
 				matchCount = matchCount + 1
 				lastMatch = player
@@ -116,7 +116,7 @@ function whisperStateMethods:EnterWhisperState(player)
 
 	local messageModeString
 
-	if ChatSettings.PlayerDisplayNamesEnabled and ChatSettings.WhisperByDisplayName then
+	if settings.PlayerDisplayNamesEnabled and settings.WhisperByDisplayName then
 		messageModeString = string.format("[To %s]", player.DisplayName)
 	else
 		messageModeString = string.format("[To %s]", player.Name)

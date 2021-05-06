@@ -7,14 +7,15 @@ local util = require(script.Parent:WaitForChild("Util"))
 
 function ProcessMessage(message)
 	if string.sub(message, 1, 8):lower() == "/console" or string.sub(message, 1, 11):lower() == "/newconsole" then
-		local success, developerConsoleVisible = pcall(function()
+		local couldGetDevConsole, developerConsoleVisible = pcall(function()
 			return StarterGui:GetCore("DevConsoleVisible")
 		end)
-		if success then
-			local success, err = pcall(function()
+
+		if couldGetDevConsole then
+			local couldShowDevConsole, err = pcall(function()
 				StarterGui:SetCore("DevConsoleVisible", not developerConsoleVisible)
 			end)
-			if not success and err then
+			if not couldShowDevConsole and err then
 				print("Error making developer console visible: " ..err)
 			end
 		end

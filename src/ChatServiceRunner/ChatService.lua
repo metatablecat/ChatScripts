@@ -321,18 +321,21 @@ function methods:InternalApplyRobloxFilter(speakerName, message, toSpeakerName) 
 		local filterStartTime = tick()
 		local filterRetries = 0
 		while true do
-			local success, message = pcall(function()
-				if toPlayerObj then
-					return Chat:FilterStringAsync(message, fromPlayerObj, toPlayerObj)
+			do
+				local success, filteredMessage = pcall(function()
+					if toPlayerObj then
+						return Chat:FilterStringAsync(message, fromPlayerObj, toPlayerObj)
+					else
+						return Chat:FilterStringForBroadcast(message, fromPlayerObj)
+					end
+				end)
+				if success then
+					return filteredMessage
 				else
-					return Chat:FilterStringForBroadcast(message, fromPlayerObj)
+					warn("Error filtering message:", filteredMessage)
 				end
-			end)
-			if success then
-				return message
-			else
-				warn("Error filtering message:", message)
 			end
+
 			filterRetries = filterRetries + 1
 			if filterRetries > MAX_FILTER_RETRIES or (tick() - filterStartTime) > MAX_FILTER_DURATION then
 				self:InternalNotifyFilterIssue()

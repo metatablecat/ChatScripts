@@ -1,4 +1,1 @@
 std="roblox"
-
-[rules]
-shadowing="allow" #This is temporary while I focus on fixing the code itself, shadowing can be fixed another time

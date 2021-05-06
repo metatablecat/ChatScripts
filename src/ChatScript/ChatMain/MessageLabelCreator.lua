@@ -50,6 +50,12 @@ function GetMessageCreators()
 	return typeToFunction
 end
 
+function DestroyMessageObject(obj)
+	ReturnToObjectPoolRecursive(obj.BaseFrame, obj.ObjectPool)
+	obj.Destroyed = true
+end
+
+
 function methods:WrapIntoMessageObject(messageData, createdMessageObject)
 	local BaseFrame = createdMessageObject[messageCreatorUtil.KEY_BASE_FRAME]
 	local BaseMessage = nil
@@ -77,10 +83,7 @@ function methods:WrapIntoMessageObject(messageData, createdMessageObject)
 	obj.ObjectPool = self.ObjectPool
 	obj.Destroyed = false
 
-	function obj:Destroy()
-		ReturnToObjectPoolRecursive(self.BaseFrame, self.ObjectPool)
-		self.Destroyed = true
-	end
+	obj.Destroy = DestroyMessageObject
 
 	return obj
 end

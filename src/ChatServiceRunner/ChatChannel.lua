@@ -176,20 +176,24 @@ function methods:MuteSpeaker(speakerName, reason, length)
 		self:SendSystemMessage(string.format("%s was muted for the following reason(s): %s", playerName, reason))
 	end
 
-	local success, err = pcall(function()
-		self.eSpeakerMuted:Fire(speakerName, reason, length)
-	end)
-	if not success and err then
-		print("Error mutting speaker: " ..err)
-	end
-
-	local spkr = self.ChatService:GetSpeaker(speakerName)
-	if spkr then
+	do
 		local success, err = pcall(function()
-			spkr.eMuted:Fire(self.Name, reason, length)
+			self.eSpeakerMuted:Fire(speakerName, reason, length)
 		end)
 		if not success and err then
 			print("Error mutting speaker: " ..err)
+		end
+	end
+
+	do
+		local spkr = self.ChatService:GetSpeaker(speakerName)
+		if spkr then
+			local success, err = pcall(function()
+				spkr.eMuted:Fire(self.Name, reason, length)
+			end)
+			if not success and err then
+				print("Error mutting speaker: " ..err)
+			end
 		end
 	end
 
@@ -203,20 +207,24 @@ function methods:UnmuteSpeaker(speakerName)
 
 	self.Mutes[speakerName:lower()] = nil
 
-	local success, err = pcall(function()
-		self.eSpeakerUnmuted:Fire(speakerName)
-	end)
-	if not success and err then
-		print("Error unmuting speaker: " ..err)
-	end
-
-	local spkr = self.ChatService:GetSpeaker(speakerName)
-	if spkr then
+	do
 		local success, err = pcall(function()
-			spkr.eUnmuted:Fire(self.Name)
+			self.eSpeakerUnmuted:Fire(speakerName)
 		end)
 		if not success and err then
 			print("Error unmuting speaker: " ..err)
+		end
+	end
+
+	do
+		local spkr = self.ChatService:GetSpeaker(speakerName)
+		if spkr then
+			local success, err = pcall(function()
+				spkr.eUnmuted:Fire(self.Name)
+			end)
+			if not success and err then
+				print("Error unmuting speaker: " ..err)
+			end
 		end
 	end
 end
