@@ -19,7 +19,7 @@ end
 
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
-local UserShouldLocalizeGameChatBubble
+local UserShouldLocalizeGameChatBubble = false
 pcall(function()
 	UserShouldLocalizeGameChatBubble = UserSettings():IsUserFeatureEnabled("UserShouldLocalizeGameChatBubble")
 end)
